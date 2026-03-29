@@ -1,0 +1,45 @@
+const mongoose = require('mongoose');
+
+const questionSchema = new mongoose.Schema({
+    questionNumber:{
+        type:Number,
+        unique:true,
+    },
+    heading:{
+        type:String,
+        required:true,
+    },
+    type:{
+        type:String,
+        required:true,
+        enum : ["easy","medium","hard"],
+    },
+    description:{
+        type:String,
+        required:true,
+    },
+    testcase:[
+        {
+            type:mongoose.Schema.Types.ObjectId,
+            ref:"testcase"
+        }
+    ],
+    constraints:{
+        type:String,
+        required:true,
+    },
+    topic:{
+        type:String,
+        required:true,
+    },
+    submission:[
+        {
+          type:mongoose.Schema.Types.ObjectId,
+          ref:"submission"   
+        }
+    ]
+
+});
+
+const question = mongoose.model('question',questionSchema);
+module.exports = question;
