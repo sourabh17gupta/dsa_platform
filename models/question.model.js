@@ -31,13 +31,7 @@ const questionSchema = new mongoose.Schema({
     topic:{
         type:String,
         required:true,
-    },
-    submission:[
-        {
-          type:mongoose.Schema.Types.ObjectId,
-          ref:"submission"   
-        }
-    ]
+    }
 
 });
 
