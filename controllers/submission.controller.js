@@ -36,7 +36,7 @@ const getSubmissionById = async (req, res) => {
     const { id } = req.params;
 
     const submission = await Submission.findById(id)
-      .populate("questionId", "status code testcase");
+      .select("status code testcase");
 
     res.status(200).json({
       success: true,
