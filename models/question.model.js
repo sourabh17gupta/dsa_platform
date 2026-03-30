@@ -18,12 +18,6 @@ const questionSchema = new mongoose.Schema({
         type:String,
         required:true,
     },
-    testcase:[
-        {
-            type:mongoose.Schema.Types.ObjectId,
-            ref:"testcase"
-        }
-    ],
     constraints:{
         type:String,
         required:true,
