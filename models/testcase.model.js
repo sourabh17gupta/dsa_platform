@@ -1,6 +1,12 @@
 const mongoose = require('mongoose');
 
 const testcaseSchema = new mongoose.Schema({
+    questionId:[
+        {
+            type:mongoose.Schema.Types.ObjectId,
+            ref:"question"
+        }
+    ],
     input:{
         type:String,
         required:true,
