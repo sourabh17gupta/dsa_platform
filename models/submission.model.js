@@ -23,7 +23,6 @@ const submissionSchema = new mongoose.Schema({
         testcaseId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "testcase",
-            required: true
         },    
         expected: { type: String },
     },
