@@ -23,7 +23,14 @@ const userSchema = new mongoose.Schema({
             type:mongoose.Schema.Types.ObjectId,
             ref:"question"
         }
-    ]
+    ],
+    resetPasswordToken:{
+        type:String
+    },
+
+    resetPasswordExpiry:{
+        type: Date
+    },
 });
 
 const user = mongoose.model('user',userSchema);

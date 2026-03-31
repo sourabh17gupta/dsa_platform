@@ -8,6 +8,9 @@ const {
   googleCallback
 } = require("../controllers/user.controller");
 
+//reset password 
+const {resetPasswordLink, resetPassword} =  require("../controllers/resetpassword.controller");
+
 const authUser = require("../middlewares/user.auth");
 
 const authUserRouter = express.Router();
@@ -41,5 +44,8 @@ authUserRouter.get(
   }),
   googleCallback
 );
+
+authUserRouter.post("/resetpassword", resetPasswordLink);
+authUserRouter.post("/resetpassword/:token", resetPassword);
 
 module.exports = authUserRouter;
