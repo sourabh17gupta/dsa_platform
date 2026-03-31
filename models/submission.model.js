@@ -26,8 +26,8 @@ const submissionSchema = new mongoose.Schema({
             required: true
         },    
         expected: { type: String },
-    }
-});
+    },
+},{timestamps:true});
 
 const submission = mongoose.model('submission',submissionSchema);
 module.exports = submission;
