@@ -27,6 +27,13 @@ const submissionSchema = new mongoose.Schema({
         },    
         expected: { type: String },
     },
+    totalPassCases:{
+        type:Number
+    },
+    totalCases:{
+        type:Number
+    }
+
 },{timestamps:true});
 
 const submission = mongoose.model('submission',submissionSchema);
