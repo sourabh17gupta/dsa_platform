@@ -24,13 +24,21 @@ const submissionSchema = new mongoose.Schema({
             type: mongoose.Schema.Types.ObjectId,
             ref: "testcase",
         },    
-        expected: { type: String },
+        currOutput: { type: String },
     },
     totalPassCases:{
         type:Number
     },
     totalCases:{
         type:Number
+    },
+    error:{
+        type:String,
+        default : "",
+    },
+    languageId:{
+        type:Number,
+        required:true,
     }
 
 },{timestamps:true});

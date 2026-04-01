@@ -1,7 +1,6 @@
 const QuestionModel = require('../models/question.model');
 const testcaseModel = require('../models/testcase.model');
 
-
 /**
  * @name questionCreatecontroller
  * @description route to push question in database
@@ -31,12 +30,12 @@ exports.questionCreatecontroller = async(req,res)=>{
             questionId:qId,
             input:testcase.input,
             output:testcase.output,
-            image:testcase?.image,
-            explanation:testcase.explanation,
+            image:testcase?.image||[],
+            explanation:testcase.explanation||"",
            })
        }
 
-       res.status(201).jaon({
+       res.status(201).json({
         message:"question saved successfully"
        })
 
