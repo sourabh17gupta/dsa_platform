@@ -13,14 +13,24 @@ const userSchema = new mongoose.Schema({
     },
     password:{
        type:String,
-       required:true,
+       //required:true,
+    },
+    googleId: {
+       type: String,
     },
     questionCompleted:[
         {
             type:mongoose.Schema.Types.ObjectId,
             ref:"question"
         }
-    ]
+    ],
+    resetPasswordToken:{
+        type:String
+    },
+
+    resetPasswordExpiry:{
+        type: Date
+    },
 });
 
 const user = mongoose.model('user',userSchema);
