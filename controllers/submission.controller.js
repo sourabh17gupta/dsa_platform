@@ -64,7 +64,7 @@ const getSubmissionById = async (req, res) => {
 const submitCode = async (req, res) => {
   try {
     const { questionId, code, languageId } = req.body;
-    const userId = "65b0a4f42d915f1eac4e9d23"; // replace with req.decoded.userid later
+    const userId = req.decoded.userid;
 
     const testCases = await TestCaseModel.find({ questionId });
     const totalCases = testCases.length;
