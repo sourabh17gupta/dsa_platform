@@ -34,7 +34,7 @@ const auth = require("./routes/auth.routes");
 app.use('/api/v1/auth',auth);
 
 const question = require("./routes/question.route");
-app.use('/api/v1/auth',question);
+app.use('/api/v1/question',question);
 
 const submission = require("./routes/submission.route");
 app.use('/api/v1/submission',submission);
