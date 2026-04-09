@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-
+const authUser = require("../middlewares/user.auth");
 const {
   getSubmissionsByQuestion,
   getSubmissionById,
@@ -12,15 +12,15 @@ const {
  *@description Get Submissions for a Specific Question
  *@access public
  */
-router.get("/:questionId", getSubmissionsByQuestion);
+router.get("/:questionId",authUser, getSubmissionsByQuestion);
 
 /**
  *@route api/submission/getSingleSubmission/:id
  *@description Get Single Submission Details
  *@access public
  */
-router.get("/getSingleSubmission/:id", getSubmissionById);
+router.get("/getSingleSubmission/:id",authUser, getSubmissionById);
 
-router.post("/submit",submitCode);
+router.post("/submit",authUser,submitCode);
 
 module.exports = router;
