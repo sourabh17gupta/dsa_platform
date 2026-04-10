@@ -19,7 +19,7 @@ const authUserRouter = express.Router();
 authUserRouter.post("/register", register);
 
 // Login
-authUserRouter.post("/login",authUser, login);
+authUserRouter.post("/login",authUser ,login);
 
 // Logout
 authUserRouter.post("/logout",authUser ,logout);

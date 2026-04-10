@@ -29,6 +29,13 @@ app.use(cookieParser());
 app.use(passport.initialize());
 app.use(passport.session());
 
+const cors = require("cors")
+
+app.use(cors({
+  origin: "http://localhost:3000",
+  credentials: true
+}))
+
 
 const auth = require("./routes/auth.routes");
 app.use('/api/v1/auth',auth);
@@ -38,7 +45,6 @@ app.use('/api/v1/question',question);
 
 const submission = require("./routes/submission.route");
 app.use('/api/v1/submission',submission);
-
 
 
 app.listen(PORT, () => {
