@@ -26,7 +26,7 @@ const resetPasswordLink = async (req, res) =>{
         
         const token = crypto.randomUUID();
 
-        const url = `${process.env.BASE_URL}/api/user/resetpassword/${token}`;
+        const url = `${process.env.FRONTEND_URL}/update-password/${token}`;
 
         // 10 minutes
         const expiryTime = Date.now() + 10 * 60 *1000;

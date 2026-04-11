@@ -1,4 +1,6 @@
 import { useState } from "react"
+import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai"
+import { FcGoogle } from "react-icons/fc"
 import { useDispatch } from "react-redux"
 import { Link, useNavigate } from "react-router-dom"
 
@@ -22,32 +24,33 @@ function LoginForm() {
     dispatch(login(email, password, navigate))
   }
 
+  const handleGoogleLogin = () => {
+    window.location.href = `${process.env.REACT_APP_BASE_URL}/api/v1/auth/google`
+  }
+
   return (
-    <div className="flex items-center justify-center min-h-screen bg-black">
-      <div className="w-full max-w-md bg-[#2a2a2e] rounded-3xl px-10 py-12">
+    <div className="flex items-center justify-center min-h-screen bg-black px-4 py-8">
+      <div className="w-full max-w-[420px] bg-[#2a2a2e] rounded-2xl sm:rounded-3xl px-5 py-8 sm:px-8 sm:py-10">
 
         {/* Icon */}
-        <div className="flex justify-center mb-6">
-          <div className="w-16 h-16 rounded-2xl bg-[#e8e6f5] flex items-center justify-center">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
-              <path d="M12 12C14.76 12 17 9.76 17 7C17 4.24 14.76 2 12 2C9.24 2 7 4.24 7 7C7 9.76 9.24 12 12 12Z" fill="#6c63d4"/>
-              <path d="M12 14C7.58 14 4 17.58 4 22H20C20 17.58 16.42 14 12 14Z" fill="#6c63d4"/>
-            </svg>
+        <div className="flex justify-center mb-4 sm:mb-5">
+          <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-[#e8e6f5] flex items-center justify-center">
+            <FcGoogle size={24} className="sm:text-[28px]" />
           </div>
         </div>
 
         {/* Heading */}
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-white mb-2">Welcome back</h2>
-          <p className="text-[#9ca3af] text-base">Sign in to continue to your account</p>
+        <div className="text-center mb-6 sm:mb-7">
+          <h2 className="text-xl sm:text-2xl font-bold text-white mb-1">Welcome back</h2>
+          <p className="text-[#9ca3af] text-xs sm:text-sm">Sign in to continue to your account</p>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleOnSubmit} className="flex flex-col gap-5">
+        <form onSubmit={handleOnSubmit} className="flex flex-col gap-4">
 
           {/* Email */}
-          <div className="flex flex-col gap-2">
-            <label className="text-sm font-semibold text-white">
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs sm:text-sm font-semibold text-white">
               Email address <span className="text-pink-400">*</span>
             </label>
             <input
@@ -56,14 +59,14 @@ function LoginForm() {
               name="email"
               value={email}
               onChange={handleOnChange}
-              placeholder="you@example.com"
-              className="w-full px-4 py-3.5 rounded-xl bg-[#1e1e22] border border-[#3a3a40] text-white placeholder-[#6b7280] text-sm outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 transition"
+              placeholder="Enter Email Address"
+              className="w-full px-4 py-2.5 sm:py-3 rounded-xl bg-[#1e1e22] border border-[#3a3a40] text-white placeholder-[#6b7280] text-sm outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 transition"
             />
           </div>
 
           {/* Password */}
-          <div className="flex flex-col gap-2">
-            <label className="text-sm font-semibold text-white">
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs sm:text-sm font-semibold text-white">
               Password <span className="text-pink-400">*</span>
             </label>
             <div className="relative">
@@ -74,29 +77,21 @@ function LoginForm() {
                 value={password}
                 onChange={handleOnChange}
                 placeholder="Enter password"
-                className="w-full px-4 py-3.5 pr-12 rounded-xl bg-[#1e1e22] border border-[#3a3a40] text-white placeholder-[#6b7280] text-sm outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 transition"
+                className="w-full px-4 py-2.5 sm:py-3 pr-12 rounded-xl bg-[#1e1e22] border border-[#3a3a40] text-white placeholder-[#6b7280] text-sm outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 transition"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword((prev) => !prev)}
                 className="absolute right-4 top-1/2 -translate-y-1/2 text-[#6b7280] hover:text-white transition"
               >
-                {showPassword ? (
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94"/>
-                    <path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19"/>
-                    <line x1="1" y1="1" x2="23" y2="23"/>
-                  </svg>
-                ) : (
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                    <circle cx="12" cy="12" r="3"/>
-                  </svg>
-                )}
+                {showPassword
+                  ? <AiOutlineEyeInvisible size={20} />
+                  : <AiOutlineEye size={20} />
+                }
               </button>
             </div>
             <div className="text-right">
-              <Link to="/forgot-password" className="text-sm text-violet-400 hover:text-violet-300 transition">
+              <Link to="/forgot-password" className="text-xs text-violet-400 hover:text-violet-300 transition">
                 Forgot password?
               </Link>
             </div>
@@ -105,14 +100,31 @@ function LoginForm() {
           {/* Submit */}
           <button
             type="submit"
-            className="w-full py-4 mt-1 rounded-xl bg-violet-500 hover:bg-violet-600 active:scale-95 text-white text-base font-semibold transition"
+            className="w-full py-3 sm:py-3.5 mt-1 rounded-xl bg-violet-500 hover:bg-violet-600 active:scale-95 text-white text-sm font-semibold transition"
           >
             Sign in
           </button>
         </form>
 
+        {/* Divider */}
+        <div className="flex items-center gap-3 my-4 sm:my-5">
+          <div className="flex-1 h-px bg-[#3a3a40]" />
+          <span className="text-xs text-[#6b7280]">or continue with</span>
+          <div className="flex-1 h-px bg-[#3a3a40]" />
+        </div>
+
+        {/* Google Button */}
+        <button
+          type="button"
+          onClick={handleGoogleLogin}
+          className="w-full flex items-center justify-center gap-3 py-2.5 sm:py-3 rounded-xl bg-[#1e1e22] border border-[#3a3a40] text-white text-sm font-medium hover:bg-[#26262b] active:scale-95 transition"
+        >
+          <FcGoogle size={20} />
+          Continue with Google
+        </button>
+
         {/* Footer */}
-        <p className="text-center text-sm text-[#9ca3af] mt-6">
+        <p className="text-center text-xs sm:text-sm text-[#9ca3af] mt-4 sm:mt-5">
           Don't have an account?{" "}
           <Link to="/signup" className="text-violet-400 hover:text-violet-300 font-semibold transition">
             Sign up
