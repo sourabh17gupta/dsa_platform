@@ -3,7 +3,8 @@ const app = express();
 const cookieParser = require("cookie-parser");
 const session = require("express-session");
 const passport = require("passport");
-const authUserRouter = require("./routes/auth.routes");
+const {dbconnect} = require("./config/database");
+const {connectRedis} = require("./config/redis");
 
 require("dotenv").config();
 require("./config/passport");
@@ -51,5 +52,8 @@ app.listen(PORT, () => {
     console.log(`Server is listening at ${PORT}`);
 });
 
-const {dbconnect} = require("./config/database");
-dbconnect();
+(async () => {
+  await dbconnect();
+  await connectRedis();
+  app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+})();
