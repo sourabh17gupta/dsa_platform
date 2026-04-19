@@ -1,5 +1,6 @@
 import { toast } from "react-hot-toast"
-import { setLoading } from "../../../Redux/Slices/authSlice"
+import { setLoading, setToken } from "../../../Redux/Slices/authSlice"
+import { setUser } from "../../../Redux/Slices/ProfileSlice"
 import { apiConnector } from "../../apiConnector"
 import { endPoints } from "../../api"
 import { setProgress } from "../../../Redux/Slices/loadingBarSlice"
@@ -20,10 +21,19 @@ export function signUp(formData, navigate) {
         throw new Error(response.data.message)
       }
 
+      const token = response.data.token
+      const user = response.data.user
+
+      dispatch(setToken(token))
+      dispatch(setUser(user))
+
+      localStorage.setItem("token", JSON.stringify(token))
+      localStorage.setItem("user", JSON.stringify(user))
+
       dispatch(setProgress(100))
       toast.success("Signup Successful")
 
-      navigate("/dashboard") 
+      navigate("/") 
 
     } catch (error) {
       console.log("SIGNUP API ERROR:", error)

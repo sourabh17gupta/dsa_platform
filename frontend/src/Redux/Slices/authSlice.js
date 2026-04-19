@@ -2,7 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   loading: false,
-  token: null,
+  token: localStorage.getItem("token") || null, // ✅ persist after refresh
 };
 
 const authSlice = createSlice({
@@ -12,8 +12,15 @@ const authSlice = createSlice({
     setLoading(state, action) {
       state.loading = action.payload;
     },
+
     setToken(state, action) {
       state.token = action.payload;
+
+      if (action.payload) {
+        localStorage.setItem("token", action.payload);
+      } else {
+        localStorage.removeItem("token");
+      }
     },
   },
 });

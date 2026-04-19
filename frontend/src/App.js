@@ -4,12 +4,14 @@ import Signup from "./Pages/Signup"
 import GoogleSuccess from "./Component/GoogleSuccess";
 import ForgotPassword from "./Pages/ForgetPassword";
 import UpdatePassword from "./Pages/UpdatePassword";
+import Home from "./Pages/Home";
 
 function App() {
   
   return (
    <div>
     <Routes>
+      <Route path="/" element={<Home/>}/>
       <Route path="/signup" element={<Signup/>}/>
       <Route path="/login" element={<Login/>}/>
       <Route path="/auth/success" element={<GoogleSuccess />} />

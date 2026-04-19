@@ -1,6 +1,7 @@
 const Submission = require("../models/submission.model");
 const TestCaseModel = require("../models/testcase.model");
 const judge0 = require("../services/judgeServices");
+const { getCache, setCache, deleteCache } = require("../services/cacheService");
 
 /**
  *@name getSubmissionsByQuestion
@@ -12,11 +13,22 @@ const getSubmissionsByQuestion = async (req, res) => {
     const { questionId } = req.params;
     const userId = req.decoded.userid;
 
+    const cacheKey = `submissions:${userId}:${questionId}`;
+
+    // 1️⃣ Check Redis first
+    const cached = await getCache(cacheKey);
+    if (cached) {
+      return res.status(200).json({ success: true, submissions: cached });
+    }
+
     const submissions = await Submission.find({
       questionId,
       userId,
     })
       .sort({ createdAt: -1 });
+
+    // 2️⃣ Store in Redis
+    await setCache(cacheKey, submissions, 60 * 2);
 
     res.status(200).json({
       success: true,
@@ -37,6 +49,14 @@ const getSubmissionById = async (req, res) => {
   try {
     const { id } = req.params;
 
+    const cacheKey = `submission:${id}`;
+
+    // 1️⃣ Check Redis first
+    const cached = await getCache(cacheKey);
+    if (cached) {
+      return res.status(200).json({ success: true, submission: cached });
+    }
+
     const submission = await Submission.findById(id)
       .populate({
         path: "testcase.testcaseId",
@@ -44,6 +64,9 @@ const getSubmissionById = async (req, res) => {
         select: "input output explanation"
       })
       .select("status code testcase currOutput");
+
+    // 2️⃣ Store in Redis
+    await setCache(cacheKey, submission, 60 * 10);
 
     res.status(200).json({
       success: true,
@@ -99,6 +122,9 @@ const submitCode = async (req, res) => {
           },
         });
 
+        // ♻️ Invalidate list cache
+        await deleteCache(`submissions:${userId}:${questionId}`);
+
         return res.status(200).json({
           message: "code will not pass testcase",
           result: {
@@ -125,6 +151,9 @@ const submitCode = async (req, res) => {
       totalCases,
       totalPassCases: passed,
     });
+
+    // ♻️ Invalidate list cache
+    await deleteCache(`submissions:${userId}:${questionId}`);
 
     return res.status(200).json({
       message: "code will pass on all testcases",

@@ -6,4 +6,5 @@ export const endPoints={
     LOGIN_API:BASE_URL+"/api/v1/auth/login",
     RESETPASSTOKEN_API: BASE_URL + "/api/v1/auth/resetpassword",
     RESETPASSWORD_API: BASE_URL + "/api/v1/auth/resetpassword",
+    LOGOUT_API:BASE_URL+"/api/v1/auth/logout"
 }

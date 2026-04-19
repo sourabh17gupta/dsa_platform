@@ -33,11 +33,11 @@ function LoginForm() {
       <div className="w-full max-w-[420px] bg-[#2a2a2e] rounded-2xl sm:rounded-3xl px-5 py-8 sm:px-8 sm:py-10">
 
         {/* Icon */}
-        <div className="flex justify-center mb-4 sm:mb-5">
+        {/* <div className="flex justify-center mb-4 sm:mb-5">
           <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-[#e8e6f5] flex items-center justify-center">
             <FcGoogle size={24} className="sm:text-[28px]" />
           </div>
-        </div>
+        </div> */}
 
         {/* Heading */}
         <div className="text-center mb-6 sm:mb-7">
@@ -102,7 +102,7 @@ function LoginForm() {
             type="submit"
             className="w-full py-3 sm:py-3.5 mt-1 rounded-xl bg-violet-500 hover:bg-violet-600 active:scale-95 text-white text-sm font-semibold transition"
           >
-            Sign in
+            Login
           </button>
         </form>
 

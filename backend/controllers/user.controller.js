@@ -46,7 +46,8 @@ const register = async(req,res) => {
 
         return res.json({
             success: true,
-            user : {email: user.email, name: user.username}
+            user : {email: user.email, name: user.username},
+            token:token
         })
     }
     catch(error){
@@ -114,7 +115,8 @@ const login = async(req,res)=>{
 
         return res.json({
             success: true,
-            user : {email: user.email, name: user.username}
+            user : {email: user.email, name: user.username},
+            token: token
         })
     }
     catch(error){
