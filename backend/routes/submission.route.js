@@ -4,8 +4,11 @@ const authUser = require("../middlewares/user.auth");
 const {
   getSubmissionsByQuestion,
   getSubmissionById,
-  submitCode
+  submitCode,
+  submissionByUser
 } = require("../controllers/submission.controller");
+
+router.get("/submissionByUser",authUser, submissionByUser);
 
 /**
  *@route api/submission/:questionId
