@@ -11,8 +11,8 @@ export const getMe = async () => {
 };
 
 /**
- * GET /api/question/all
- * Returns { message, data: [ { _id, heading, type } ] }
+ GET /api/question/all
+ Returns { message, data: [ { _id, heading, type } ] }
  */
 export const getAllQuestions = async () => {
   const response = await apiConnector("GET", endPoints.GET_ALL_QUESTIONS_API);

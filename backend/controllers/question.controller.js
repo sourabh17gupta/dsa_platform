@@ -108,7 +108,6 @@ exports.getAllQuestionController = async (req, res) => {
   try {
     const cacheKey = "questions:all";
 
-    // 1️⃣ Check Redis first
     const cached = await getCache(cacheKey);
     if (cached) {
       return res.status(200).json({
@@ -118,10 +117,8 @@ exports.getAllQuestionController = async (req, res) => {
       });
     }
 
-    // 2️⃣ Cache miss → hit MongoDB
     const data = await QuestionModel.find().select("_id heading type");
 
-    // 3️⃣ Store in Redis
     await setCache(cacheKey, data, ALL_QUESTIONS_TTL);
 
     res.status(200).json({

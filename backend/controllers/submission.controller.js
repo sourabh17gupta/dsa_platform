@@ -51,7 +51,7 @@ const getSubmissionById = async (req, res) => {
 
     const cacheKey = `submission:${id}`;
 
-    // 1️⃣ Check Redis first
+    // Check Redis first
     const cached = await getCache(cacheKey);
     if (cached) {
       return res.status(200).json({ success: true, submission: cached });
@@ -65,7 +65,7 @@ const getSubmissionById = async (req, res) => {
       })
       .select("status code testcase currOutput");
 
-    // 2️⃣ Store in Redis
+    // Store in Redis
     await setCache(cacheKey, submission, 60 * 1);
 
     res.status(200).json({
@@ -88,7 +88,7 @@ const getSubmissionById = async (req, res) => {
 const submitCode = async (req, res) => {
   try {
     const { questionId, code, languageId } = req.body;
-    const userId = req.decoded.userid;
+    const userId = "69cb7325b6ed85b3de6f48b0";
 
     const testCases = await TestCaseModel.find({ questionId });
     const totalCases = testCases.length;
@@ -118,14 +118,15 @@ const submitCode = async (req, res) => {
           error,
           testcase: {
             testcaseId: tc._id,
-            expected: response.output,
+            currOutput: response.output,
           },
         });
 
-        // ♻️ Invalidate list cache
+        //  Invalidate list cache
         await deleteCache(`submissions:${userId}:${questionId}`);
 
         return res.status(200).json({
+          success:"false",
           message: "code will not pass testcase",
           result: {
             code,
@@ -133,7 +134,7 @@ const submitCode = async (req, res) => {
             expected: tc.output,
             output: response.output,
             error: response.error,
-            status:response.status
+            status:response.status=="Accepted"?"Wrong Answer":response.status,
           },
         });
       }
@@ -156,6 +157,7 @@ const submitCode = async (req, res) => {
     await deleteCache(`submissions:${userId}:${questionId}`);
 
     return res.status(200).json({
+      success:"true",
       message: "code will pass on all testcases",
       result: {
         code,
