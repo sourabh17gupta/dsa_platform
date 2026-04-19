@@ -4,8 +4,11 @@ import { questionendPint } from "../../api";
 
 export function getAllQuestion() {
   return async (dispatch, getState) => {
+    console.log("hi 1");
     const existing = getState().question.question;
     if (existing && existing.length > 0) return;
+    console.log("hi 2");
+
 
     dispatch(setLoading(true));
     try {

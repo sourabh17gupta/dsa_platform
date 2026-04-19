@@ -2,20 +2,22 @@ import { Route,Routes } from "react-router-dom";
 import Login from "./Pages/Login";
 import ProblemSet from "./Pages/ProblemSet";
 import QuestionPage from "./Pages/QuestionPage";
+
+import Dashboard from "./Pages/Dashboard/Dashboard";
+
 function App() {
-  
   return (
    <div>
     <Routes>
       
       <Route
-          path="login"
+          path="/login"
           element={
             <Login/>
           }
         />
       <Route
-          path="problemset"
+          path="/problemset"
           element={
             <ProblemSet/>
           }
@@ -26,11 +28,9 @@ function App() {
             <QuestionPage/>
           }
         />
-      
-
-    </Routes>
-
-   </div>
+      <Route path="/dashboard" element={<Dashboard />} />
+      </Routes>
+    </div>
   );
 }
 

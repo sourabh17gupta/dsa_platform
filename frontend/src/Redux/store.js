@@ -1,10 +1,15 @@
-import {configureStore} from "@reduxjs/toolkit"
-import questionReducer from "./Slices/questionSlices"
-import singleQuestionReducer from "./Slices/singleQuestion"
+import { configureStore } from "@reduxjs/toolkit";
 
-export const store=configureStore({
-    reducer:{
-        question:questionReducer,
-        singleQuestion:singleQuestionReducer,
-    }
-})
+import profileReducer   from "./Slices/ProfileSlice";
+import dashboardReducer from "./Slices/DashboardSlice";
+import questionReducer      from "./Slices/questionSlices";
+import singleQuestionReducer from "./Slices/singleQuestion";
+
+export const store = configureStore({
+  reducer: {
+    profile:   profileReducer,
+    dashboard: dashboardReducer,
+    question:questionReducer,
+    singleQuestion: singleQuestionReducer,
+  },
+});
