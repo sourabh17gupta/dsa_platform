@@ -12,6 +12,7 @@ const getSubmissionsByQuestion = async (req, res) => {
   try {
     const { questionId } = req.params;
     const userId = req.decoded.userid;
+    console.log(userId)
 
     const cacheKey = `submissions:${userId}:${questionId}`;
 
@@ -88,7 +89,7 @@ const getSubmissionById = async (req, res) => {
 const submitCode = async (req, res) => {
   try {
     const { questionId, code, languageId } = req.body;
-    const userId = "69cb7325b6ed85b3de6f48b0";
+    const userId = req.decoded.userid;
 
     const testCases = await TestCaseModel.find({ questionId });
     const totalCases = testCases.length;

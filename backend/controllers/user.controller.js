@@ -46,7 +46,8 @@ const register = async(req,res) => {
 
         return res.json({
             success: true,
-            user : {email: user.email, name: user.username}
+            user : {email: user.email, name: user.username},
+            token:token
         })
     }
     catch(error){
@@ -114,7 +115,8 @@ const login = async(req,res)=>{
 
         return res.json({
             success: true,
-            user : {email: user.email, name: user.username}
+            user : {email: user.email, name: user.username},
+            token: token
         })
     }
     catch(error){
@@ -150,20 +152,14 @@ const googleCallback = (req, res) => {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    //Send response
-    return res.json({
-      success: true,
-      user: {
-        email: user.email,
-        name: user.username, // make sure matches your schema
-      },
-    });
+
+    return res.redirect(
+      `http://localhost:3000/auth/success?token=${token}`
+    );
 
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: "Google auth failed",
-    });
+    
+    return res.redirect("http://localhost:3000/login");
   }
 };
 
