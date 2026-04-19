@@ -66,7 +66,7 @@ const getSubmissionById = async (req, res) => {
       .select("status code testcase currOutput");
 
     // 2️⃣ Store in Redis
-    await setCache(cacheKey, submission, 60 * 10);
+    await setCache(cacheKey, submission, 60 * 1);
 
     res.status(200).json({
       success: true,
@@ -174,4 +174,34 @@ const submitCode = async (req, res) => {
   }
 };
 
-module.exports = { getSubmissionsByQuestion,getSubmissionById,submitCode };
+
+const submissionByUser = async(req,res)=>{
+  try{
+     const userId = req.decoded.userid;
+     console.log(userId);
+     const cacheKey = `submissions:user:${userId}`;
+
+    // 1️⃣ Check Redis cache
+    const cached = await getCache(cacheKey);
+    if (cached) {
+      console.log("⚡ CACHE HIT (user submissions)");
+      return res.status(200).json({
+        success: true,
+        submissions: cached,
+      });
+    }
+     const submissions = await Submission.find({userId});
+     console.log(submissions);
+     // 3️⃣ Store in Redis (TTL = 2 min)
+    await setCache(cacheKey, submissions, 60 * 2);
+     return res.status(200).json({
+      success:"true",
+      submissions
+     })
+  }
+  catch(error){
+    console.error(error);
+    res.status(500).json({ message: "Server Error" });
+  }
+}
+module.exports = { getSubmissionsByQuestion,getSubmissionById,submitCode,submissionByUser };
