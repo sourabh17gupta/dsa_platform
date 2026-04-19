@@ -65,7 +65,7 @@ const getSubmissionById = async (req, res) => {
 const submitCode = async (req, res) => {
   try {
     const { questionId, code, languageId } = req.body;
-    const userId = req.decoded.userid;
+    const userId = "69cb7325b6ed85b3de6f48b0";
 
     const testCases = await TestCaseModel.find({ questionId });
     const totalCases = testCases.length;
@@ -100,6 +100,7 @@ const submitCode = async (req, res) => {
         });
 
         return res.status(200).json({
+          success:"false",
           message: "code will not pass testcase",
           result: {
             code,
@@ -107,7 +108,7 @@ const submitCode = async (req, res) => {
             expected: tc.output,
             output: response.output,
             error: response.error,
-            status:response.status
+            status:response.status=="Accepted"?"Wrong Answer":response.status,
           },
         });
       }
@@ -127,6 +128,7 @@ const submitCode = async (req, res) => {
     });
 
     return res.status(200).json({
+      success:"true",
       message: "code will pass on all testcases",
       result: {
         code,

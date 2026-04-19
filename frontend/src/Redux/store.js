@@ -1,9 +1,10 @@
 import {configureStore} from "@reduxjs/toolkit"
-
-import profileReducer from "./Slices/ProfileSlice"
+import questionReducer from "./Slices/questionSlices"
+import singleQuestionReducer from "./Slices/singleQuestion"
 
 export const store=configureStore({
     reducer:{
-        profile:profileReducer,
+        question:questionReducer,
+        singleQuestion:singleQuestionReducer,
     }
 })

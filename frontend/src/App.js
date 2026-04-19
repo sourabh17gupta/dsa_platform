@@ -1,6 +1,7 @@
 import { Route,Routes } from "react-router-dom";
 import Login from "./Pages/Login";
-
+import ProblemSet from "./Pages/ProblemSet";
+import QuestionPage from "./Pages/QuestionPage";
 function App() {
   
   return (
@@ -13,6 +14,19 @@ function App() {
             <Login/>
           }
         />
+      <Route
+          path="problemset"
+          element={
+            <ProblemSet/>
+          }
+        />
+      <Route
+          path="/question/:id"
+          element={
+            <QuestionPage/>
+          }
+        />
+      
 
     </Routes>
 
