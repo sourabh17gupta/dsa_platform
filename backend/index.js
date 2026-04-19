@@ -52,9 +52,8 @@ app.listen(PORT, () => {
     console.log(`Server is listening at ${PORT}`);
 });
 
-
 (async () => {
   await dbconnect();
   await connectRedis();
-  app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 })();

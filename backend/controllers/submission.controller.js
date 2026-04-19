@@ -12,6 +12,7 @@ const getSubmissionsByQuestion = async (req, res) => {
   try {
     const { questionId } = req.params;
     const userId = req.decoded.userid;
+    console.log(userId)
 
     const cacheKey = `submissions:${userId}:${questionId}`;
 
@@ -51,7 +52,7 @@ const getSubmissionById = async (req, res) => {
 
     const cacheKey = `submission:${id}`;
 
-    // 1️⃣ Check Redis first
+    // Check Redis first
     const cached = await getCache(cacheKey);
     if (cached) {
       return res.status(200).json({ success: true, submission: cached });
@@ -65,8 +66,8 @@ const getSubmissionById = async (req, res) => {
       })
       .select("status code testcase currOutput");
 
-    // 2️⃣ Store in Redis
-    await setCache(cacheKey, submission, 60 * 10);
+    // Store in Redis
+    await setCache(cacheKey, submission, 60 * 1);
 
     res.status(200).json({
       success: true,
@@ -118,14 +119,15 @@ const submitCode = async (req, res) => {
           error,
           testcase: {
             testcaseId: tc._id,
-            expected: response.output,
+            currOutput: response.output,
           },
         });
 
-        // ♻️ Invalidate list cache
+        //  Invalidate list cache
         await deleteCache(`submissions:${userId}:${questionId}`);
 
         return res.status(200).json({
+          success:"false",
           message: "code will not pass testcase",
           result: {
             code,
@@ -133,7 +135,7 @@ const submitCode = async (req, res) => {
             expected: tc.output,
             output: response.output,
             error: response.error,
-            status:response.status
+            status:response.status=="Accepted"?"Wrong Answer":response.status,
           },
         });
       }
@@ -156,6 +158,7 @@ const submitCode = async (req, res) => {
     await deleteCache(`submissions:${userId}:${questionId}`);
 
     return res.status(200).json({
+      success:"true",
       message: "code will pass on all testcases",
       result: {
         code,
@@ -174,4 +177,34 @@ const submitCode = async (req, res) => {
   }
 };
 
-module.exports = { getSubmissionsByQuestion,getSubmissionById,submitCode };
+
+const submissionByUser = async(req,res)=>{
+  try{
+     const userId = req.decoded.userid;
+     console.log(userId);
+     const cacheKey = `submissions:user:${userId}`;
+
+    // 1️⃣ Check Redis cache
+    const cached = await getCache(cacheKey);
+    if (cached) {
+      console.log("⚡ CACHE HIT (user submissions)");
+      return res.status(200).json({
+        success: true,
+        submissions: cached,
+      });
+    }
+     const submissions = await Submission.find({userId});
+     console.log(submissions);
+     // 3️⃣ Store in Redis (TTL = 2 min)
+    await setCache(cacheKey, submissions, 60 * 2);
+     return res.status(200).json({
+      success:"true",
+      submissions
+     })
+  }
+  catch(error){
+    console.error(error);
+    res.status(500).json({ message: "Server Error" });
+  }
+}
+module.exports = { getSubmissionsByQuestion,getSubmissionById,submitCode,submissionByUser };

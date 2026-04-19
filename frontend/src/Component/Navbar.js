@@ -14,7 +14,7 @@ import { logout } from "../api/Services/AuthApi/LogoutApi"
 
 const navLinks = [
   { title: "Home", path: "/", icon: <AiOutlineHome size={18} /> },
-  { title: "Problems", path: "/problems", icon: <BsCodeSlash size={18} /> },
+  { title: "Problems", path: "/problemset", icon: <BsCodeSlash size={18} /> },
   { title: "Dashboard", path: "/dashboard", icon: <LuLayoutDashboard size={17} /> },
 ]
 
@@ -27,8 +27,6 @@ function Navbar() {
   const { user } = useSelector((state) => state.profile)
   console.log("User: ",user);
 
-  const [searchQuery, setSearchQuery] = useState("")
-  const [searchFocused, setSearchFocused] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [showLogoutModal, setShowLogoutModal] = useState(false)
 
@@ -50,13 +48,7 @@ function Navbar() {
     setShowLogoutModal(false)
   }
 
-  const handleSearch = (e) => {
-    e.preventDefault()
-    if (searchQuery.trim()) {
-      navigate(`/problems?search=${searchQuery}`)
-      setMobileMenuOpen(false) // close menu after search (mobile UX)
-    }
-  }
+  
 
   useEffect(() => {
     setMobileMenuOpen(false)
@@ -102,22 +94,7 @@ function Navbar() {
         {/* Right Section */}
         <div className="flex items-center gap-2">
 
-          {/* Desktop Search */}
-          <form
-            onSubmit={handleSearch}
-            className={`relative hidden sm:flex ${searchFocused ? "w-60" : "w-44"}`}
-          >
-            <AiOutlineSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-[#6b6b6b]" />
-            <input
-              ref={searchRef}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onFocus={() => setSearchFocused(true)}
-              onBlur={() => setSearchFocused(false)}
-              placeholder="Search..."
-              className="w-full rounded-lg border border-[#3e3e3e] bg-[#282828] py-1.5 pl-8 text-white outline-none"
-            />
-          </form>
+         
 
           {/* Avatar */}
           {token && user && (
@@ -169,16 +146,7 @@ function Navbar() {
       {mobileMenuOpen && (
         <div className="md:hidden p-4 border-t border-[#3e3e3e] space-y-3">
 
-          {/* 🔍 Mobile Search (NEW) */}
-          <form onSubmit={handleSearch} className="relative">
-            <AiOutlineSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-[#6b6b6b]" />
-            <input
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search problems..."
-              className="w-full rounded-lg border border-[#3e3e3e] bg-[#282828] py-2 pl-8 text-white outline-none"
-            />
-          </form>
+          
 
           {navLinks.map((link) => (
             <Link key={link.title} to={link.path} className="block py-2 text-[#ababab]">

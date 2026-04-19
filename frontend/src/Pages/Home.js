@@ -67,7 +67,7 @@ const DiffBadge = ({ level }) => (
 
 const Home = () => (
   <div className="min-h-screen bg-[#1a1a1a] text-white" style={{ fontFamily: "'Outfit', sans-serif" }}>
-    <Navbar />
+   
 
     <main className="mx-auto max-w-screen-xl px-4 md:px-6 pb-20">
 

@@ -182,9 +182,36 @@ const logout = async (req,res)=>{
     }
 }
 
+/**
+  *@name: getMe
+  *@description: get logged in user profile from JWT cookie
+  *@access: private
+ */
+const getMe = async (req, res) => {
+    try {
+        const user = await User.findById(req.decoded.userid).select("-password");
+ 
+        if (!user) {
+            return res.json({ success: false, message: "User not found" });
+        }
+ 
+        return res.json({
+            success: true,
+            user: {
+                name: user.username,
+                email: user.email,
+            },
+        });
+    } catch (error) {
+        console.log(error.message);
+        res.json({ success: false, message: error.message });
+    }
+};
+
 module.exports = {
     register,
     login,
     logout,
-    googleCallback
+    googleCallback,
+    getMe,
 };

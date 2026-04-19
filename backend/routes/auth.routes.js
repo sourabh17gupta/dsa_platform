@@ -5,7 +5,8 @@ const {
   register,
   login,
   logout,
-  googleCallback
+  googleCallback,
+  getMe,
 } = require("../controllers/user.controller");
 
 //reset password 
@@ -23,6 +24,9 @@ authUserRouter.post("/login", login);
 
 // Logout
 authUserRouter.post("/logout",authUser ,logout);
+
+// Get logged-in user profile  ← NEW
+authUserRouter.get("/me", authUser, getMe);
 
 
 //Google Auth Routes
