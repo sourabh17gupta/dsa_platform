@@ -152,11 +152,6 @@ const Home = () => {
                 Start Solving <AiOutlineRight size={13} />
               </button>
             </Link>
-            <Link to={`/question/${daily.id}`}>
-              <button className="flex items-center gap-2 rounded-lg border border-[#1e1e2e] bg-[#111118] px-6 py-2.5 text-sm font-mono text-slate-400 hover:text-slate-200 hover:border-violet-600 transition-colors cursor-pointer">
-                <BsLightningCharge size={13} /> Daily Challenge
-              </button>
-            </Link>
           </div>
 
           {/* Code snippet */}
@@ -226,37 +221,6 @@ const Home = () => {
                 </div>
               </section>
             )}
-
-            {/* Daily Challenge */}
-            <section className="rounded-xl border border-violet-500/20 bg-violet-500/5 p-5">
-              <div className="flex items-center gap-2 mb-3">
-                <AiOutlineFire size={15} className="text-violet-400" />
-                <span className="text-xs font-semibold text-violet-400 uppercase tracking-widest font-mono">Daily Challenge</span>
-                <span className="ml-auto flex items-center gap-1 text-xs text-slate-600 font-mono">
-                  <MdOutlineTimer size={13} /> Resets in 8h 42m
-                </span>
-              </div>
-              <div className="flex items-start justify-between gap-4 flex-wrap">
-                <div>
-                  <h3 className="text-base font-semibold text-white mb-2 font-mono">{daily.title}</h3>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <DiffBadge level={daily.difficulty} />
-                    {daily.tags.map((t) => (
-                      <span key={t} className="rounded-full px-2 py-0.5 text-xs bg-[#1a1a2e] border border-[#1e1e2e] text-slate-400 font-mono">{t}</span>
-                    ))}
-                  </div>
-                  <div className="flex gap-4 mt-3 text-xs text-slate-600 font-mono">
-                    <span>Acceptance: <span className="text-slate-300">{daily.acceptance}</span></span>
-                    <span>Submissions: <span className="text-slate-300">{daily.submissions}</span></span>
-                  </div>
-                </div>
-                <Link to={`/question/${daily.id}`}>
-                  <button className="shrink-0 flex items-center gap-1.5 rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-white hover:bg-violet-500 transition-colors cursor-pointer font-mono">
-                    <AiOutlineCode size={15} /> Solve Now
-                  </button>
-                </Link>
-              </div>
-            </section>
 
             {/* Problem List Preview */}
             <section>
