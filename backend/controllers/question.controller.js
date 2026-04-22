@@ -117,7 +117,7 @@ exports.getAllQuestionController = async (req, res) => {
       });
     }
 
-    const data = await QuestionModel.find().select("_id heading type");
+    const data = await QuestionModel.find().select("_id heading type topic");
 
     await setCache(cacheKey, data, ALL_QUESTIONS_TTL);
 

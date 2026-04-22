@@ -1,36 +1,28 @@
-import { Link } from "react-router-dom"
-import Navbar from "../Component/Navbar"
+import { useEffect, useMemo, useState } from "react"
+import { Link, useNavigate } from "react-router-dom"
+import { useDispatch, useSelector } from "react-redux"
 import {
   AiOutlineFire,
   AiOutlineRight,
-  AiOutlineCheck,
   AiOutlineCode,
 } from "react-icons/ai"
 import { BsCodeSlash, BsLightningCharge, BsGraphUp } from "react-icons/bs"
 import { MdOutlineTimer } from "react-icons/md"
 import { FiUsers } from "react-icons/fi"
 import { AiOutlineTrophy } from "react-icons/ai"
-
-// ── Static Data ──────────────────────────────────────────────
+import { fetchDashboardData } from "../Redux/Slices/DashboardSlice"
+import { getSubmissionByUser } from "../api/Services/dashboardApi"
+import { getAllQuestion } from "../api/Services/QuestionApi/getAllQuestion"
 
 const stats = [
-  { label: "Problems",          value: "3,547", icon: <BsCodeSlash size={18} />,    color: "text-[#ffa116]" },
-  { label: "Active Users",      value: "128K",  icon: <FiUsers size={18} />,         color: "text-[#00b8a3]" },
-  { label: "Submissions Today", value: "94K",   icon: <BsGraphUp size={18} />,       color: "text-[#5c6bc0]" },
-  { label: "Companies",         value: "500+",  icon: <AiOutlineTrophy size={18} />, color: "text-[#ef6c00]" },
-]
-
-const categories = [
-  { name: "Arrays",              count: 412, icon: "[ ]", bg: "rgba(255,161,22,0.1)",  border: "rgba(255,161,22,0.25)", text: "#ffa116" },
-  { name: "Strings",             count: 298, icon: '" "', bg: "rgba(0,184,163,0.1)",   border: "rgba(0,184,163,0.25)",  text: "#00b8a3" },
-  { name: "Dynamic Programming", count: 234, icon: "◈",   bg: "rgba(92,107,192,0.1)",  border: "rgba(92,107,192,0.25)", text: "#5c6bc0" },
-  { name: "Trees",               count: 189, icon: "⌥",   bg: "rgba(239,108,0,0.1)",   border: "rgba(239,108,0,0.25)",  text: "#ef6c00" },
-  { name: "Graphs",              count: 167, icon: "◉",   bg: "rgba(233,30,99,0.1)",   border: "rgba(233,30,99,0.25)",  text: "#e91e63" },
-  { name: "Sorting",             count: 143, icon: "↕",   bg: "rgba(76,175,80,0.1)",   border: "rgba(76,175,80,0.25)",  text: "#4caf50" },
+  { label: "Problems",          value: "3,547", icon: <BsCodeSlash size={18} />,    color: "text-violet-400" },
+  { label: "Active Users",      value: "128K",  icon: <FiUsers size={18} />,         color: "text-emerald-400" },
+  { label: "Submissions Today", value: "94K",   icon: <BsGraphUp size={18} />,       color: "text-amber-400" },
+  { label: "Companies",         value: "500+",  icon: <AiOutlineTrophy size={18} />, color: "text-red-400" },
 ]
 
 const daily = {
-  id: 1832,
+  id: "69cd1ccffd53f4403f558f20",
   title: "Check if the Sentence Is Pangram",
   difficulty: "Easy",
   tags: ["Hash Table", "String"],
@@ -38,246 +30,382 @@ const daily = {
   submissions: "485K",
 }
 
-const difficulties = [
-  { level: "Easy",   solved: 842,  total: 1200, color: "#00b8a3", pct: 70 },
-  { level: "Medium", solved: 1243, total: 1800, color: "#ffa116", pct: 69 },
-  { level: "Hard",   solved: 412,  total: 547,  color: "#ef4444", pct: 75 },
-]
-
-const recent = [
-  { id: 1,   title: "Two Sum",                         difficulty: "Easy",   status: "Solved",    lang: "Python", time: "2h ago" },
-  { id: 121, title: "Best Time to Buy and Sell Stock", difficulty: "Easy",   status: "Solved",    lang: "C++",    time: "5h ago" },
-  { id: 53,  title: "Maximum Subarray",                difficulty: "Medium", status: "Attempted", lang: "Java",   time: "1d ago" },
-  { id: 200, title: "Number of Islands",               difficulty: "Medium", status: "Solved",    lang: "Python", time: "2d ago" },
-]
-
-// ── Helpers ──────────────────────────────────────────────────
-
 const diffStyle = {
-  Easy:   "text-[#00b8a3] bg-[#00b8a3]/10",
-  Medium: "text-[#ffa116] bg-[#ffa116]/10",
-  Hard:   "text-red-400 bg-red-500/10",
+  Easy:   "text-emerald-400 bg-emerald-500/10 border border-emerald-500/30",
+  Medium: "text-amber-400 bg-amber-500/10 border border-amber-500/30",
+  Hard:   "text-red-400 bg-red-500/10 border border-red-500/30",
 }
 
 const DiffBadge = ({ level }) => (
-  <span className={`rounded px-2 py-0.5 text-xs font-medium ${diffStyle[level]}`}>{level}</span>
+  <span className={`rounded-full px-3 py-0.5 text-xs font-mono font-medium capitalize ${diffStyle[level]}`}>
+    {level}
+  </span>
 )
 
-// ── Component ────────────────────────────────────────────────
+const Home = () => {
+  const navigate  = useNavigate()
+  const dispatch  = useDispatch()
 
-const Home = () => (
-  <div className="min-h-screen bg-[#1a1a1a] text-white" style={{ fontFamily: "'Outfit', sans-serif" }}>
-   
+  const { question }           = useSelector((state) => state.question)
+  const { questions }          = useSelector((s) => s.dashboard)
+  const { user }               = useSelector((s) => s.profile)
 
-    <main className="mx-auto max-w-screen-xl px-4 md:px-6 pb-20">
+  // Same as Dashboard.js — local state for all user submissions
+  const [sub, setSub] = useState([])
 
-      {/* HERO */}
-      <section className="flex flex-col items-center text-center gap-5 py-16 md:py-24">
+  // Fetch questions on mount — both slices so problem list and solved counts load immediately
+  useEffect(() => {
+    dispatch(getAllQuestion())      // populates s.question → problem rows
+    dispatch(fetchDashboardData()) // populates s.dashboard.questions → solvedByDiff
+  }, [dispatch])
 
-        <span className="inline-flex items-center gap-2 rounded-full border border-[#ffa116]/30 bg-[#ffa116]/10 px-4 py-1.5 text-xs font-medium text-[#ffa116]">
-          <AiOutlineFire size={13} /> Daily Challenge is Live
-        </span>
+  // Fetch all submissions for this user (same as Dashboard.js)
+  useEffect(() => {
+    getSubmissionByUser()
+      .then((res) => setSub(res.submissions || []))
+      .catch((err) => console.error(err))
+  }, [])
 
-        <h1 className="text-4xl md:text-6xl font-bold leading-tight tracking-tight"
-            style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-          Level Up Your <br />
-          <span className="text-[#ffa116]">Coding Skills</span>
-        </h1>
+  const questionList = Array.isArray(question)  ? question  : []
+  const dashQuestions = Array.isArray(questions) ? questions : []
 
-        <p className="max-w-lg text-[#ababab] text-base md:text-lg leading-relaxed">
-          Practice problems, ace interviews, and compete with developers worldwide.
-        </p>
+  // Exact same logic as Dashboard.js ─────────────────────────────────────────
 
-        <div className="flex flex-wrap justify-center gap-3">
-          <Link to="/problems">
-            <button className="flex items-center gap-2 rounded-lg bg-[#ffa116] px-6 py-2.5 text-sm font-semibold text-black hover:bg-[#ffb84d] transition-colors">
-              Start Solving <AiOutlineRight size={13} />
-            </button>
-          </Link>
-          <Link to="/problems">
-            <button className="flex items-center gap-2 rounded-lg border border-[#3e3e3e] bg-[#282828] px-6 py-2.5 text-sm font-medium text-[#ababab] hover:text-white hover:border-[#5e5e5e] transition-colors">
-              <BsLightningCharge size={13} /> Daily Challenge
-            </button>
-          </Link>
+  const solvedIds = useMemo(() => {
+    const validQuestionIds = new Set(dashQuestions.map((q) => String(q._id)))
+    return new Set(
+      sub
+        .filter((s) => s.status === "Accepted" && validQuestionIds.has(String(s.questionId)))
+        .map((s) => String(s.questionId))
+    )
+  }, [sub, dashQuestions])
+
+  const totalByDiff = useMemo(() => {
+    const m = { easy: 0, medium: 0, hard: 0 }
+    questionList.forEach((q) => { m[q.type] = (m[q.type] || 0) + 1 })
+    return m
+  }, [questionList])
+
+  const solvedByDiff = useMemo(() => {
+    const m = { easy: 0, medium: 0, hard: 0 }
+    dashQuestions.forEach((q) => {
+      if (solvedIds.has(String(q._id))) m[q.type] = (m[q.type] || 0) + 1
+    })
+    return m
+  }, [dashQuestions, solvedIds])
+
+  // ───────────────────────────────────────────────────────────────────────────
+
+  const totalAll  = totalByDiff.easy + totalByDiff.medium + totalByDiff.hard
+  const solvedAll = solvedByDiff.easy + solvedByDiff.medium + solvedByDiff.hard
+
+  const diffRows = [
+    { level: "Easy",   solved: solvedByDiff.easy,   total: totalByDiff.easy,   color: "#4ade80", textColor: "text-emerald-400" },
+    { level: "Medium", solved: solvedByDiff.medium, total: totalByDiff.medium, color: "#f59e0b", textColor: "text-amber-400"  },
+    { level: "Hard",   solved: solvedByDiff.hard,   total: totalByDiff.hard,   color: "#ef4444", textColor: "text-red-400"    },
+  ]
+
+  // Derive unique topics dynamically from questionList
+  const topicList = useMemo(() => {
+    const map = {}
+    questionList.forEach((q) => {
+      if (q.topic) map[q.topic] = (map[q.topic] || 0) + 1
+    })
+    return Object.entries(map)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 6)
+      .map(([name, count]) => ({ name, count }))
+  }, [questionList])
+
+  // Cycle through violet shades for topic cards
+  const topicColors = [
+    { bg: "bg-violet-500/10",  border: "border-violet-500/20",  text: "text-violet-400"  },
+    { bg: "bg-emerald-500/10", border: "border-emerald-500/20", text: "text-emerald-400" },
+    { bg: "bg-amber-500/10",   border: "border-amber-500/20",   text: "text-amber-400"   },
+    { bg: "bg-red-500/10",     border: "border-red-500/20",     text: "text-red-400"     },
+    { bg: "bg-sky-500/10",     border: "border-sky-500/20",     text: "text-sky-400"     },
+    { bg: "bg-pink-500/10",    border: "border-pink-500/20",    text: "text-pink-400"    },
+  ]
+
+  return (
+    <div className="min-h-screen bg-[#0a0a0f] text-slate-200 font-sans">
+      <div className="w-full px-6 py-10 max-w-screen-xl mx-auto">
+
+        {/* Hero */}
+        <section className="flex flex-col items-center text-center gap-5 py-16 md:py-20">
+          <span className="inline-flex items-center gap-2 rounded-full border border-violet-500/30 bg-violet-500/10 px-4 py-1.5 text-xs font-mono text-violet-400">
+            <AiOutlineFire size={13} /> Daily Challenge is Live
+          </span>
+
+          <h1 className="text-4xl md:text-6xl font-extrabold leading-tight tracking-tight text-white font-mono">
+            Level Up Your <br />
+            <span className="text-violet-400">Coding Skills</span>
+          </h1>
+
+          <p className="max-w-lg text-slate-500 text-base md:text-lg leading-relaxed font-mono">
+            Practice problems, ace interviews, and compete with developers worldwide.
+          </p>
+
+          <div className="flex flex-wrap justify-center gap-3">
+            <Link to="/problemset">
+              <button className="flex items-center gap-2 rounded-lg bg-violet-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-violet-500 transition-colors cursor-pointer font-mono">
+                Start Solving <AiOutlineRight size={13} />
+              </button>
+            </Link>
+            <Link to={`/question/${daily.id}`}>
+              <button className="flex items-center gap-2 rounded-lg border border-[#1e1e2e] bg-[#111118] px-6 py-2.5 text-sm font-mono text-slate-400 hover:text-slate-200 hover:border-violet-600 transition-colors cursor-pointer">
+                <BsLightningCharge size={13} /> Daily Challenge
+              </button>
+            </Link>
+          </div>
+
+          {/* Code snippet */}
+          <div className="w-full max-w-md rounded-xl border border-[#1e1e2e] bg-[#111118] p-4 text-left mt-2 font-mono">
+            <div className="flex gap-1.5 mb-3">
+              <span className="h-3 w-3 rounded-full bg-red-500/60" />
+              <span className="h-3 w-3 rounded-full bg-amber-500/60" />
+              <span className="h-3 w-3 rounded-full bg-emerald-500/60" />
+            </div>
+            <div className="text-xs leading-6">
+              <p><span className="text-violet-400">def </span><span className="text-amber-400">twoSum</span><span className="text-slate-300">(nums, target):</span></p>
+              <p className="pl-5"><span className="text-violet-400">seen </span><span className="text-slate-300">= {"{}"}</span></p>
+              <p className="pl-5"><span className="text-violet-400">for </span><span className="text-slate-300">i, num </span><span className="text-violet-400">in </span><span className="text-emerald-400">enumerate</span><span className="text-slate-300">(nums):</span></p>
+              <p className="pl-10"><span className="text-violet-400">if </span><span className="text-slate-300">target - num </span><span className="text-violet-400">in </span><span className="text-slate-300">seen:</span></p>
+              <p className="pl-16"><span className="text-violet-400">return </span><span className="text-slate-300">[seen[target - num], i]</span></p>
+              <p className="pl-10"><span className="text-slate-300">seen[num] = i</span></p>
+            </div>
+          </div>
+        </section>
+
+        {/* Stats */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-10">
+          {stats.map((s) => (
+            <div key={s.label} className="rounded-xl border border-[#1e1e2e] bg-[#111118] p-4">
+              <span className={s.color}>{s.icon}</span>
+              <p className="text-2xl font-bold mt-2 mb-1 text-white font-mono">{s.value}</p>
+              <p className="text-xs text-slate-600 font-mono">{s.label}</p>
+            </div>
+          ))}
         </div>
 
-        {/* Code snippet */}
-        <div className="w-full max-w-md rounded-xl border border-[#3e3e3e] bg-[#282828] p-4 text-left mt-2"
-             style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-          <div className="flex gap-1.5 mb-3">
-            <span className="h-3 w-3 rounded-full bg-red-500/60" />
-            <span className="h-3 w-3 rounded-full bg-[#ffa116]/60" />
-            <span className="h-3 w-3 rounded-full bg-[#00b8a3]/60" />
-          </div>
-          <div className="text-xs leading-6">
-            <p><span className="text-[#5c6bc0]">def </span><span className="text-[#ffa116]">twoSum</span><span className="text-white">(nums, target):</span></p>
-            <p className="pl-5"><span className="text-[#5c6bc0]">seen </span><span className="text-white">= {"{}"}</span></p>
-            <p className="pl-5"><span className="text-[#5c6bc0]">for </span><span className="text-white">i, num </span><span className="text-[#5c6bc0]">in </span><span className="text-[#00b8a3]">enumerate</span><span className="text-white">(nums):</span></p>
-            <p className="pl-10"><span className="text-[#5c6bc0]">if </span><span className="text-white">target - num </span><span className="text-[#5c6bc0]">in </span><span className="text-white">seen:</span></p>
-            <p className="pl-16"><span className="text-[#5c6bc0]">return </span><span className="text-white">[seen[target - num], i]</span></p>
-            <p className="pl-10"><span className="text-white">seen[num] = i</span></p>
-          </div>
-        </div>
-      </section>
+        {/* Main Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-      {/* STATS */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-10">
-        {stats.map((s) => (
-          <div key={s.label} className="rounded-xl border border-[#3e3e3e] bg-[#282828] p-4">
-            <span className={s.color}>{s.icon}</span>
-            <p className="text-2xl font-bold mt-2 mb-1" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{s.value}</p>
-            <p className="text-xs text-[#6b6b6b]">{s.label}</p>
-          </div>
-        ))}
-      </div>
+          {/* Left — 2 cols */}
+          <div className="lg:col-span-2 flex flex-col gap-6">
 
-      {/* MAIN GRID */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-        {/* Left — 2 cols */}
-        <div className="lg:col-span-2 flex flex-col gap-6">
-
-          {/* Topic Categories */}
-          <section>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-base font-semibold" style={{ fontFamily: "'JetBrains Mono', monospace" }}>Explore by Topic</h2>
-              <Link to="/problems" className="flex items-center gap-1 text-xs text-[#ffa116] hover:underline">
-                View all <AiOutlineRight size={11} />
-              </Link>
-            </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              {categories.map((c) => (
-                <Link to={`/problems?tag=${c.name.toLowerCase()}`} key={c.name}>
-                  <div className="rounded-xl border p-4 cursor-pointer transition-transform hover:scale-[1.02]"
-                       style={{ background: c.bg, borderColor: c.border }}>
-                    <div className="text-xl mb-2" style={{ fontFamily: "monospace", color: c.text }}>{c.icon}</div>
-                    <p className="text-sm font-medium text-white">{c.name}</p>
-                    <p className="text-xs text-[#6b6b6b] mt-0.5">{c.count} problems</p>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </section>
-
-          {/* Daily Challenge */}
-          <section className="rounded-xl border border-[#ffa116]/30 bg-[#ffa116]/5 p-5">
-            <div className="flex items-center gap-2 mb-3">
-              <AiOutlineFire size={15} className="text-[#ffa116]" />
-              <span className="text-xs font-semibold text-[#ffa116] uppercase tracking-wide">Daily Challenge</span>
-              <span className="ml-auto flex items-center gap-1 text-xs text-[#6b6b6b]">
-                <MdOutlineTimer size={13} /> Resets in 8h 42m
-              </span>
-            </div>
-            <div className="flex items-start justify-between gap-4 flex-wrap">
-              <div>
-                <p className="text-xs text-[#6b6b6b] mb-1">#{daily.id}</p>
-                <h3 className="text-base font-semibold text-white mb-2">{daily.title}</h3>
-                <div className="flex flex-wrap items-center gap-2">
-                  <DiffBadge level={daily.difficulty} />
-                  {daily.tags.map((t) => (
-                    <span key={t} className="rounded px-2 py-0.5 text-xs bg-[#3e3e3e] text-[#ababab]">{t}</span>
-                  ))}
+            {/* Explore by Topic */}
+            {topicList.length > 0 && (
+              <section>
+                <div className="flex items-center justify-between pb-3 mb-4 border-b border-[#1e1e2e]">
+                  <h2 className="text-base font-extrabold tracking-tight text-white font-mono">Explore by Topic</h2>
+                  <Link to="/problemset" className="flex items-center gap-1 text-xs text-violet-400 font-mono hover:text-violet-300">
+                    View all <AiOutlineRight size={11} />
+                  </Link>
                 </div>
-                <div className="flex gap-4 mt-3 text-xs text-[#6b6b6b]">
-                  <span>Acceptance: <span className="text-white">{daily.acceptance}</span></span>
-                  <span>Submissions: <span className="text-white">{daily.submissions}</span></span>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  {topicList.map((t, i) => {
+                    const c = topicColors[i % topicColors.length]
+                    return (
+                      <div
+                        key={t.name}
+                        onClick={() => navigate(`/problemset?tag=${encodeURIComponent(t.name)}`)}
+                        className={`rounded-xl border ${c.bg} ${c.border} p-4 cursor-pointer
+                                    transition-all duration-200 hover:scale-[1.02] hover:brightness-110`}
+                      >
+                        <p className={`text-xs font-mono font-bold mb-1 uppercase tracking-widest ${c.text}`}>
+                          {"{"}
+                          {t.name.slice(0, 2).toUpperCase()}
+                          {"}"}
+                        </p>
+                        <p className="text-sm font-semibold text-white font-mono truncate">{t.name}</p>
+                        <p className="text-[11px] text-slate-600 font-mono mt-0.5">{t.count} problems</p>
+                      </div>
+                    )
+                  })}
+                </div>
+              </section>
+            )}
+
+            {/* Daily Challenge */}
+            <section className="rounded-xl border border-violet-500/20 bg-violet-500/5 p-5">
+              <div className="flex items-center gap-2 mb-3">
+                <AiOutlineFire size={15} className="text-violet-400" />
+                <span className="text-xs font-semibold text-violet-400 uppercase tracking-widest font-mono">Daily Challenge</span>
+                <span className="ml-auto flex items-center gap-1 text-xs text-slate-600 font-mono">
+                  <MdOutlineTimer size={13} /> Resets in 8h 42m
+                </span>
+              </div>
+              <div className="flex items-start justify-between gap-4 flex-wrap">
+                <div>
+                  <h3 className="text-base font-semibold text-white mb-2 font-mono">{daily.title}</h3>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <DiffBadge level={daily.difficulty} />
+                    {daily.tags.map((t) => (
+                      <span key={t} className="rounded-full px-2 py-0.5 text-xs bg-[#1a1a2e] border border-[#1e1e2e] text-slate-400 font-mono">{t}</span>
+                    ))}
+                  </div>
+                  <div className="flex gap-4 mt-3 text-xs text-slate-600 font-mono">
+                    <span>Acceptance: <span className="text-slate-300">{daily.acceptance}</span></span>
+                    <span>Submissions: <span className="text-slate-300">{daily.submissions}</span></span>
+                  </div>
+                </div>
+                <Link to={`/question/${daily.id}`}>
+                  <button className="shrink-0 flex items-center gap-1.5 rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-white hover:bg-violet-500 transition-colors cursor-pointer font-mono">
+                    <AiOutlineCode size={15} /> Solve Now
+                  </button>
+                </Link>
+              </div>
+            </section>
+
+            {/* Problem List Preview */}
+            <section>
+              <div className="flex items-center justify-between pb-4 mb-4 border-b border-[#1e1e2e]">
+                <h2 className="text-base font-extrabold tracking-tight text-white font-mono">Problems</h2>
+                <div className="flex items-center gap-3">
+                  <span className="flex items-center gap-2 bg-[#111118] border border-[#1e1e2e] rounded-full px-3 py-1 font-mono text-xs text-emerald-400">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                    {totalByDiff.easy} Easy
+                  </span>
+                  <span className="flex items-center gap-2 bg-[#111118] border border-[#1e1e2e] rounded-full px-3 py-1 font-mono text-xs text-amber-400">
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+                    {totalByDiff.medium} Medium
+                  </span>
+                  <span className="flex items-center gap-2 bg-[#111118] border border-[#1e1e2e] rounded-full px-3 py-1 font-mono text-xs text-red-400">
+                    <span className="w-1.5 h-1.5 rounded-full bg-red-400" />
+                    {totalByDiff.hard} Hard
+                  </span>
                 </div>
               </div>
-              <Link to={`/problems/${daily.id}`}>
-                <button className="shrink-0 flex items-center gap-1.5 rounded-lg bg-[#ffa116] px-4 py-2 text-sm font-semibold text-black hover:bg-[#ffb84d] transition-colors">
-                  <AiOutlineCode size={15} /> Solve Now
+
+              <div className="grid grid-cols-[50px_1fr_130px] px-4 py-2 font-mono text-[11px] tracking-widest text-slate-600 uppercase border-b border-[#1e1e2e] mb-1">
+                <span>#</span>
+                <span>Title</span>
+                <span>Difficulty</span>
+              </div>
+
+              <div className="flex flex-col gap-1">
+                {questionList.slice(0, 5).map((q, index) => (
+                  <div
+                    key={q._id}
+                    onClick={() => navigate(`/question/${q._id}`)}
+                    className="grid grid-cols-[50px_1fr_130px] items-center px-4 py-3
+                               bg-[#111118] border border-transparent rounded-xl cursor-pointer
+                               transition-all duration-200
+                               hover:bg-[#1a1a2e] hover:border-violet-600
+                               hover:translate-x-1 hover:shadow-[0_0_20px_rgba(124,58,237,0.15)]
+                               group"
+                  >
+                    <span className="font-mono text-sm text-slate-600">
+                      {String(index + 1).padStart(2, "0")}
+                    </span>
+                    <span className="text-sm font-semibold text-slate-200 group-hover:text-violet-300 transition-colors font-mono truncate pr-2">
+                      {q.heading}
+                    </span>
+                    <span
+                      className={`inline-flex items-center justify-center px-3 py-1 rounded-full font-mono text-xs font-medium capitalize w-fit
+                        ${q.type === "easy"   ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/30" : ""}
+                        ${q.type === "medium" ? "bg-amber-500/10 text-amber-400 border border-amber-500/30"       : ""}
+                        ${q.type === "hard"   ? "bg-red-500/10 text-red-400 border border-red-500/30"             : ""}
+                      `}
+                    >
+                      {q.type}
+                    </span>
+                  </div>
+                ))}
+              </div>
+
+              {questionList.length > 5 && (
+                <Link to="/problemset">
+                  <div className="mt-3 flex items-center justify-center gap-2 py-3 rounded-xl border border-[#1e1e2e] bg-[#111118] text-violet-400 font-mono text-xs hover:border-violet-600 hover:bg-[#1a1a2e] transition-all cursor-pointer">
+                    View all {questionList.length} problems <AiOutlineRight size={11} />
+                  </div>
+                </Link>
+              )}
+            </section>
+          </div>
+
+          {/* Right Sidebar */}
+          <div className="flex flex-col gap-5">
+
+            {/* Difficulty Breakdown */}
+            <div className="rounded-xl border border-[#1e1e2e] bg-[#111118] p-5 flex flex-col gap-4">
+              <h2 className="text-sm font-extrabold tracking-tight text-white font-mono">Difficulty Breakdown</h2>
+
+              {diffRows.map((d) => {
+                const pct = d.total > 0 ? Math.round((d.solved / d.total) * 100) : 0
+                return (
+                  <div key={d.level}>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className={`text-xs font-mono font-medium ${d.textColor}`}>{d.level}</span>
+                      <span className="font-mono text-xs text-white font-medium">
+                        {d.solved}
+                        <span className="text-slate-600 font-normal">/{d.total}</span>
+                      </span>
+                    </div>
+                    <div className="h-1.5 w-full rounded-full bg-[#1e1e2e] overflow-hidden">
+                      <div
+                        className="h-full rounded-full transition-all duration-700"
+                        style={{ width: `${pct}%`, background: d.color }}
+                      />
+                    </div>
+                    <p className="text-[11px] text-slate-600 mt-1 font-mono">{pct}% solved</p>
+                  </div>
+                )
+              })}
+
+              <div className="border-t border-[#1e1e2e] pt-3 flex flex-col gap-1.5">
+                <div className="flex justify-between text-xs font-mono">
+                  <span className="text-slate-600">Total solved</span>
+                  <span className="text-white font-medium">
+                    {solvedAll}
+                    <span className="text-slate-600 font-normal">/{totalAll}</span>
+                  </span>
+                </div>
+                {totalAll > 0 && (
+                  <div className="h-1.5 w-full rounded-full bg-[#1e1e2e] overflow-hidden">
+                    <div
+                      className="h-full rounded-full bg-violet-500 transition-all duration-700"
+                      style={{ width: `${Math.round((solvedAll / totalAll) * 100)}%` }}
+                    />
+                  </div>
+                )}
+              </div>
+
+              <Link to="/problemset">
+                <button className="w-full border border-[#1e1e2e] bg-transparent font-mono text-xs px-4 py-2 rounded-md text-violet-400 hover:border-violet-500 hover:bg-violet-500/5 transition-all cursor-pointer">
+                  Browse All Problems
                 </button>
               </Link>
             </div>
-          </section>
 
-          {/* Recent Activity */}
-          <section>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-base font-semibold" style={{ fontFamily: "'JetBrains Mono', monospace" }}>Recent Activity</h2>
-              <Link to="/dashboard" className="flex items-center gap-1 text-xs text-[#ffa116] hover:underline">
-                View all <AiOutlineRight size={11} />
-              </Link>
-            </div>
-            <div className="rounded-xl border border-[#3e3e3e] bg-[#282828] overflow-hidden">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-[#3e3e3e] text-[#6b6b6b] text-xs">
-                    <th className="text-left px-4 py-3 font-medium">Problem</th>
-                    <th className="text-left px-4 py-3 font-medium hidden sm:table-cell">Difficulty</th>
-                    <th className="text-left px-4 py-3 font-medium hidden md:table-cell">Lang</th>
-                    <th className="text-left px-4 py-3 font-medium">Status</th>
-                    <th className="text-right px-4 py-3 font-medium hidden sm:table-cell">Time</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {recent.map((p) => (
-                    <tr key={p.id} className="border-b border-[#3e3e3e] last:border-0 hover:bg-[#1e1e1e] transition-colors cursor-pointer">
-                      <td className="px-4 py-3">
-                        <span className="text-[#6b6b6b] text-xs mr-1">#{p.id}</span>
-                        <Link to={`/problems/${p.id}`} className="text-white hover:text-[#ffa116] transition-colors">{p.title}</Link>
-                      </td>
-                      <td className="px-4 py-3 hidden sm:table-cell"><DiffBadge level={p.difficulty} /></td>
-                      <td className="px-4 py-3 hidden md:table-cell">
-                        <span className="rounded px-2 py-0.5 text-xs bg-[#3e3e3e] text-[#ababab] font-mono">{p.lang}</span>
-                      </td>
-                      <td className="px-4 py-3">
-                        <span className={`flex items-center gap-1 text-xs font-medium ${p.status === "Solved" ? "text-[#00b8a3]" : "text-[#ffa116]"}`}>
-                          {p.status === "Solved" && <AiOutlineCheck size={11} />} {p.status}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-right text-xs text-[#6b6b6b] hidden sm:table-cell">{p.time}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </section>
-        </div>
-
-        {/* Right Sidebar */}
-        <div className="flex flex-col gap-5">
-
-          {/* Difficulty Breakdown — expanded with extra detail */}
-          <div className="rounded-xl border border-[#3e3e3e] bg-[#282828] p-5 flex flex-col gap-5">
-            <h2 className="text-base font-semibold" style={{ fontFamily: "'JetBrains Mono', monospace" }}>Difficulty Breakdown</h2>
-
-            <div className="flex flex-col gap-5">
-              {difficulties.map((d) => (
-                <div key={d.level}>
-                  <div className="flex items-center justify-between mb-1.5 text-sm">
-                    <span className="text-[#ababab]">{d.level}</span>
-                    <span className="font-mono text-white font-medium">
-                      {d.solved}<span className="text-[#6b6b6b] font-normal">/{d.total}</span>
-                    </span>
-                  </div>
-                  <div className="h-2 w-full rounded-full bg-[#3e3e3e] overflow-hidden">
-                    <div className="h-full rounded-full transition-all" style={{ width: `${d.pct}%`, background: d.color }} />
-                  </div>
-                  <p className="text-xs text-[#6b6b6b] mt-1.5">{d.pct}% completion rate</p>
+            {/* User card */}
+            {user && (
+              <div className="rounded-xl border border-[#1e1e2e] bg-[#111118] p-5 flex flex-col items-center text-center gap-3">
+                <div className="w-12 h-12 rounded-xl bg-violet-500/20 border border-violet-500/30 flex items-center justify-center text-violet-300 text-xl font-bold font-mono">
+                  {user?.name?.charAt(0).toUpperCase() || "U"}
                 </div>
-              ))}
-            </div>
+                <div>
+                  <h3 className="text-white text-sm font-semibold font-mono">{user?.name || "User"}</h3>
+                  <p className="text-slate-600 text-xs mt-0.5 font-mono">{user?.email || ""}</p>
+                </div>
+                <Link to="/dashboard" className="w-full">
+                  <button className="w-full border border-[#1e1e2e] font-mono text-xs px-4 py-2 rounded-md text-violet-400 hover:border-violet-500 hover:bg-violet-500/5 transition-all cursor-pointer">
+                    View Dashboard <AiOutlineRight size={11} className="inline" />
+                  </button>
+                </Link>
+              </div>
+            )}
 
-            <div className="border-t border-[#3e3e3e] pt-4 flex flex-col gap-2">
-              <div className="flex justify-between text-sm">
-                <span className="text-[#6b6b6b]">Total solved</span>
-                <span className="font-mono text-white font-medium">
-                  {difficulties.reduce((a, d) => a + d.solved, 0).toLocaleString()}
-                  <span className="text-[#6b6b6b] font-normal">/{difficulties.reduce((a, d) => a + d.total, 0).toLocaleString()}</span>
-                </span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-[#6b6b6b]">Solved globally today</span>
-                <span className="font-mono text-white font-medium">2,497</span>
-              </div>
-            </div>
           </div>
-
         </div>
+
+        <p className="text-center text-slate-700 font-mono text-xs mt-12">
+          {`// ${totalAll} problems and counting`}
+        </p>
       </div>
-    </main>
-  </div>
-)
+    </div>
+  )
+}
 
 export default Home
