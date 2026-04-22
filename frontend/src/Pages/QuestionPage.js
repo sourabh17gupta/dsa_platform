@@ -24,7 +24,7 @@ const CODE_TEMPLATES = {
   javascript: `/**\n * @param {number} a\n * @param {number} b\n * @return {number}\n */\nfunction solve(a, b) {\n  // Write your solution here\n\n}`,
   python:     `class Solution:\n    def solve(self, a: int, b: int) -> int:\n        # Write your solution here\n        pass`,
   cpp:        `#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n\n    // Write your solution here\n\n    return 0;\n}`,
-  java:       `import java.util.*;\nimport java.io.*;\n\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n\n        // Write your solution here\n\n    }\n}`,
+  java:       `import java.util.*;\nimport java.io.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n\n        // Write your solution here\n\n    }\n}`,
 };
 
 const TABS = [
