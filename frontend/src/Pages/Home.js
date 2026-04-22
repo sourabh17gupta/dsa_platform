@@ -105,6 +105,28 @@ const Home = () => {
     { level: "Hard",   solved: solvedByDiff.hard,   total: totalByDiff.hard,   color: "#ef4444", textColor: "text-red-400"    },
   ]
 
+  // Derive unique topics dynamically from questionList
+  const topicList = useMemo(() => {
+    const map = {}
+    questionList.forEach((q) => {
+      if (q.topic) map[q.topic] = (map[q.topic] || 0) + 1
+    })
+    return Object.entries(map)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 6)
+      .map(([name, count]) => ({ name, count }))
+  }, [questionList])
+
+  // Cycle through violet shades for topic cards
+  const topicColors = [
+    { bg: "bg-violet-500/10",  border: "border-violet-500/20",  text: "text-violet-400"  },
+    { bg: "bg-emerald-500/10", border: "border-emerald-500/20", text: "text-emerald-400" },
+    { bg: "bg-amber-500/10",   border: "border-amber-500/20",   text: "text-amber-400"   },
+    { bg: "bg-red-500/10",     border: "border-red-500/20",     text: "text-red-400"     },
+    { bg: "bg-sky-500/10",     border: "border-sky-500/20",     text: "text-sky-400"     },
+    { bg: "bg-pink-500/10",    border: "border-pink-500/20",    text: "text-pink-400"    },
+  ]
+
   return (
     <div className="min-h-screen bg-[#0a0a0f] text-slate-200 font-sans">
       <div className="w-full px-6 py-10 max-w-screen-xl mx-auto">
@@ -171,6 +193,39 @@ const Home = () => {
 
           {/* Left — 2 cols */}
           <div className="lg:col-span-2 flex flex-col gap-6">
+
+            {/* Explore by Topic */}
+            {topicList.length > 0 && (
+              <section>
+                <div className="flex items-center justify-between pb-3 mb-4 border-b border-[#1e1e2e]">
+                  <h2 className="text-base font-extrabold tracking-tight text-white font-mono">Explore by Topic</h2>
+                  <Link to="/problemset" className="flex items-center gap-1 text-xs text-violet-400 font-mono hover:text-violet-300">
+                    View all <AiOutlineRight size={11} />
+                  </Link>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  {topicList.map((t, i) => {
+                    const c = topicColors[i % topicColors.length]
+                    return (
+                      <div
+                        key={t.name}
+                        onClick={() => navigate(`/problemset?tag=${encodeURIComponent(t.name)}`)}
+                        className={`rounded-xl border ${c.bg} ${c.border} p-4 cursor-pointer
+                                    transition-all duration-200 hover:scale-[1.02] hover:brightness-110`}
+                      >
+                        <p className={`text-xs font-mono font-bold mb-1 uppercase tracking-widest ${c.text}`}>
+                          {"{"}
+                          {t.name.slice(0, 2).toUpperCase()}
+                          {"}"}
+                        </p>
+                        <p className="text-sm font-semibold text-white font-mono truncate">{t.name}</p>
+                        <p className="text-[11px] text-slate-600 font-mono mt-0.5">{t.count} problems</p>
+                      </div>
+                    )
+                  })}
+                </div>
+              </section>
+            )}
 
             {/* Daily Challenge */}
             <section className="rounded-xl border border-violet-500/20 bg-violet-500/5 p-5">
@@ -345,6 +400,9 @@ const Home = () => {
           </div>
         </div>
 
+        <p className="text-center text-slate-700 font-mono text-xs mt-12">
+          {`// ${totalAll} problems and counting`}
+        </p>
       </div>
     </div>
   )
