@@ -22,6 +22,7 @@
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
     "redis": "^5.12.1",
-    "redix": "^1.0.22"
+    "redix": "^1.0.22",
+    "uuid": "^14.0.0"
   }
 }

@@ -47,6 +47,9 @@ app.use('/api/v1/question',question);
 const submission = require("./routes/submission.route");
 app.use('/api/v1/submission',submission);
 
+const interview = require("./routes/interview.route");
+app.use('/api/v1/interview',interview);
+
 
 app.listen(PORT, () => {
     console.log(`Server is listening at ${PORT}`);
